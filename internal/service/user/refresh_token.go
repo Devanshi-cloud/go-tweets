@@ -1,0 +1,63 @@
+package user
+
+import (
+	"context"
+	"errors"
+	"go-tweets/internal/dto"
+	"go-tweets/internal/model"
+	"go-tweets/pkg/jwt"
+	"go-tweets/pkg/refreshtoken"
+	"net/http"
+	"time"
+)
+
+func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenRequest, userID int64) (string, string, int, error) {
+	// check user existence
+	userExist, err := s.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err // Internal server error
+	}
+	if userExist == nil {
+		return "", "", http.StatusNotFound, errors.New("user not found") // User not found
+	}
+	// Get the refresh token by user ID
+	refreshTokenExist, err := s.userRepo.GetRefreshToken(ctx, userID, time.Now())
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err // Error fetching refresh token
+	}
+	
+	if refreshTokenExist == nil {
+		return "", "", http.StatusUnauthorized, errors.New("refresh token not found") // Refresh token not found
+	}
+
+	//check refresh token validity
+	if req.RefreshToken != refreshTokenExist.RefreshToken {
+		return "", "", http.StatusUnauthorized, errors.New("invalid refresh token") // Invalid refresh token
+	}
+
+	//generate a new refresh token if the matched
+	token, err := jwt.CreateToken(userID, userExist.Username, s.cfg.SecretJwt)
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err // Error creating token
+	}
+
+	err = s.userRepo.DeleteRefreshToken(ctx, userID)
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err // Error deleting old refresh token
+	}
+	refreshToken, err := refreshtoken.GenerateRefreshToken()
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err // Error creating new refresh token
+	}
+
+	now := time.Now()
+	s.userRepo.StoreRefreshToken(ctx, &model.RefreshTokenModel{
+		UserID:      userID,
+		RefreshToken: refreshToken, // New refresh token
+		CreatedAt:  now,
+		UpdatedAt: now,
+		ExpiredAt: now.Add(24 * time.Hour), // Set expiration time
+	})
+
+	return token, refreshToken, http.StatusOK, nil // Return new access token and refresh token
+}
