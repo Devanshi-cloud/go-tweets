@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenRequest, userID int64) (string, string, int, error) {
+func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenRequest, userID int64) (string, string, int, error) {  
 	// check user existence
 	userExist, err := s.userRepo.GetUserByID(ctx, userID)
 	if err != nil {
@@ -21,18 +21,18 @@ func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenReq
 		return "", "", http.StatusNotFound, errors.New("user not found") // User not found
 	}
 	// Get the refresh token by user ID
-	refreshTokenExist, err := s.userRepo.GetRefreshToken(ctx, userID, time.Now())
+	refreshTokenExists, err := s.userRepo.GetRefreshToken(ctx, userID, time.Now())
 	if err != nil {
 		return "", "", http.StatusInternalServerError, err // Error fetching refresh token
 	}
 	
-	if refreshTokenExist == nil {
-		return "", "", http.StatusUnauthorized, errors.New("refresh token not found") // Refresh token not found
+	if refreshTokenExists == nil {
+		return "", "", http.StatusUnauthorized, errors.New("refresh token was expired") // Refresh token not found
 	}
 
 	//check refresh token validity
-	if req.RefreshToken != refreshTokenExist.RefreshToken {
-		return "", "", http.StatusUnauthorized, errors.New("invalid refresh token") // Invalid refresh token
+	if req.RefreshToken != refreshTokenExists.RefreshToken {
+		return "", "", http.StatusUnauthorized, errors.New("refresh token not found") // Invalid refresh token
 	}
 
 	//generate a new refresh token if the matched
@@ -41,7 +41,7 @@ func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenReq
 		return "", "", http.StatusInternalServerError, err // Error creating token
 	}
 
-	err = s.userRepo.DeleteRefreshToken(ctx, userID)
+	err = s.userRepo.DeleteRefreshTokenByUserID(ctx, userID)
 	if err != nil {
 		return "", "", http.StatusInternalServerError, err // Error deleting old refresh token
 	}

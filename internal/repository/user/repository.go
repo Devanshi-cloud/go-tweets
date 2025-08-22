@@ -13,7 +13,7 @@ type UserRepository interface {
 	GetRefreshToken(ctx context.Context, userID int64, now time.Time) (*model.RefreshTokenModel, error)
 	StoreRefreshToken(ctx context.Context, model *model.RefreshTokenModel) error
 	GetUserByID(ctx context.Context, userID int64) (*model.UserModel, error)
-	DeleteRefreshToken(ctx context.Context, userID int64) error
+	DeleteRefreshTokenByUserID(ctx context.Context, userID int64) error
 }
 
 type userRepository struct {

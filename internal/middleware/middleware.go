@@ -1,52 +1,53 @@
+// filepath: /Users/devanshi/Desktop/code/practice/go-tweets/internal/middleware/middleware.go
 package middleware
 
 import (
-	"errors"
-	"go-tweets/pkg/jwt"
-	"net/http"
-	"strings"
+    "errors"
+    "go-tweets/pkg/jwt"
+    "net/http"
+    "strings"
 
-	"github.com/gin-gonic/gin"
+    "github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware(secretKey string) gin.HandlerFunc{
-	return func(c *gin.Context) {
-		token := c.GetHeader("Authorization")
-		if token == "" {
-			c.AbortWithStatusJSON(401, gin.H{"error": "Authorization header is required"})
+	return func(c *gin.Context){
+		header := c.Request.Header.Get("Authorization")
+		header = strings.TrimSpace(header)
+		if header == "" {
+			c.AbortWithError(http.StatusUnauthorized, errors.New("misssing token"))
 			return
 		}
 
-		userID, username, err := jwt.ValidateToken(token, secretKey, true)
+		userID, username, err := jwt.ValidateToken(header, secretKey, true)
 		if err != nil {
-			c.AbortWithStatusJSON(401, gin.H{"error": "Invalid token"})
+			c.AbortWithError(http.StatusUnauthorized, errors.New("missing token"))
 			return
 		}
 
 		c.Set("userID", userID)
-		c.Set("username", username)
-		c.Next()
+        c.Set("username", username)
+        c.Next()
 	}
 }
 
 func AuthRefreshTokenMiddleware(secretKey string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Fixed: Changed "Autherization" to "Authorization"
+    return func(c *gin.Context){
 		header := c.Request.Header.Get("Authorization")
 		header = strings.TrimSpace(header)
 		if header == "" {
-			c.AbortWithError(http.StatusUnauthorized, errors.New("missing token"))
+			c.AbortWithError(http.StatusUnauthorized, errors.New("misssing token"))
 			return
 		}
 
 		userID, username, err := jwt.ValidateToken(header, secretKey, false)
 		if err != nil {
-			c.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
+			c.AbortWithError(http.StatusUnauthorized, errors.New("missing token"))
 			return
 		}
 
 		c.Set("userID", userID)
-		c.Set("username", username)
-		c.Next()
+        c.Set("username", username)
+        c.Next()
 	}
 }

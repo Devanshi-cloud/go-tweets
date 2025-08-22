@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-func (r *userRepository) DeleteRefreshToken(ctx context.Context, userID int64) error {
+func (r *userRepository) DeleteRefreshTokenByUserID(ctx context.Context, userID int64) error {
 	query := `DELETE FROM refresh_tokens 
 	WHERE user_id = ?`
 
