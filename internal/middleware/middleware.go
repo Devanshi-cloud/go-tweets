@@ -31,7 +31,8 @@ func AuthMiddleware(secretKey string) gin.HandlerFunc{
 
 func AuthRefreshTokenMiddleware(secretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		header := c.Request.Header.Get("Autherization")
+		// Fixed: Changed "Autherization" to "Authorization"
+		header := c.Request.Header.Get("Authorization")
 		header = strings.TrimSpace(header)
 		if header == "" {
 			c.AbortWithError(http.StatusUnauthorized, errors.New("missing token"))
