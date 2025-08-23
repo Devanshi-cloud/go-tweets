@@ -1,6 +1,5 @@
 package dto
 
-
 type (
 	CreatePostRequest struct {
 		Title   string `json:"title" validate:"required"`

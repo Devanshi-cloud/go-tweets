@@ -1,10 +1,14 @@
 package post
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+	"go-tweets/internal/model"
+)
 
 
 type PostRepository interface {
-
+	StorePost(ctx context.Context, model *model.PostModel) (int64, error)
 }
 
 type postRepository struct {
