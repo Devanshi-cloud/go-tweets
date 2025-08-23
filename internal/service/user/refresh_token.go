@@ -51,13 +51,16 @@ func (s *userService) RefreshToken(ctx context.Context, req *dto.RefreshTokenReq
 	}
 
 	now := time.Now()
-	s.userRepo.StoreRefreshToken(ctx, &model.RefreshTokenModel{
+	err = s.userRepo.StoreRefreshToken(ctx, &model.RefreshTokenModel{
 		UserID:      userID,
 		RefreshToken: refreshToken, // New refresh token
 		CreatedAt:  now,
 		UpdatedAt: now,
 		ExpiredAt: now.Add(24 * time.Hour), // Set expiration time
 	})
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err // Error storing new refresh token
+	}
 
 	return token, refreshToken, http.StatusOK, nil // Return new access token and refresh token
 }
