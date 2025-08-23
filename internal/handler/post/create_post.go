@@ -31,7 +31,7 @@ func (h * Handler) CreatePost(c *gin.Context) {
 	postID, statusCode, err := h.postService.CreatePost(ctx, &req, userID)
 	if err != nil {	
 		c.JSON(statusCode, gin.H{
-			"error": err.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
