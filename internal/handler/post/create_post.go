@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h * Handler) CreatePost(c *gin.Context) {
+func (h *Handler) CreatePost(c *gin.Context) {
 	var (
 		ctx = c.Request.Context()
-		req dto.CreatePostRequest
+		req dto.CreateOrUpdatePostRequest
 	)
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -29,7 +29,7 @@ func (h * Handler) CreatePost(c *gin.Context) {
 
 	userID := c.GetInt64("userID") // Assuming user ID is set in context after authentication
 	postID, statusCode, err := h.postService.CreatePost(ctx, &req, userID)
-	if err != nil {	
+	if err != nil {
 		c.JSON(statusCode, gin.H{
 			"message": err.Error(),
 		})
