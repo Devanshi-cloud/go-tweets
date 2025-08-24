@@ -36,7 +36,7 @@ func (h *Handler) CreatePost(c *gin.Context) {
 		return
 	}
 
-	c.JSON(statusCode, dto.CreatePostResponse{
+	c.JSON(statusCode, dto.CreateOrUpdatePostResponse{
 		ID: postID,
 	})
 }
