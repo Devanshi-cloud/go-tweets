@@ -6,8 +6,9 @@ import (
 )
 
 func (r *commentRepository) StoreComment(ctx context.Context, model *model.CommentModel) error {
-	query := `INSERT INTO comments (id, user_id, tweet_id, content, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := r.db.ExecContext(ctx, query, model.ID, model.UserID, model.Content, model.CreatedAt, model.UpdatedAt)
+	query := `INSERT INTO comments (post_id, user_id, content, created_at, updated_at) 
+	VALUES (?, ?, ?, ?, ?, ?)`
+	_, err := r.db.ExecContext(ctx, query, model.PostID, model.UserID, model.Content, model.CreatedAt, model.UpdatedAt)
 
 	return err
 }
