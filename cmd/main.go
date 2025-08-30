@@ -5,10 +5,13 @@ import (
 	"go-tweets/internal/config"
 	postHandler "go-tweets/internal/handler/post"
 	userHandler "go-tweets/internal/handler/user"
+	commentHandler "go-tweets/internal/handler/comment"
 	postRepo "go-tweets/internal/repository/post"
 	userRepo "go-tweets/internal/repository/user"
+	commentRepo "go-tweets/internal/repository/comment"
 	postService "go-tweets/internal/service/post"
 	userService "go-tweets/internal/service/user"
+	commentService "go-tweets/internal/service/comment"
 	"go-tweets/pkg/internalsql"
 	"log"
 	"net/http"
@@ -45,15 +48,19 @@ func main() {
 
 	userRepo := userRepo.NewRepository(db)
 	postRepo := postRepo.NewPostRepository(db)
+	commentRepo := commentRepo.NewCommentRepository(db)
 
 	userService := userService.NewService(cfg, userRepo)
 	postService := postService.NewPostService(cfg, postRepo)
+	commentService := commentService.NewCommentService(cfg, commentRepo, postRepo)
 
 	userHandler := userHandler.NewHandler(r, validate, userService)
 	postHandler := postHandler.NewHandler(r, validate, postService)
+	commentHandler := commentHandler.NewHandler(r, validate, commentService)
 
 	postHandler.RouteList(cfg.SecretJwt)
 	userHandler.RouteList(cfg.SecretJwt)
+	commentHandler.RouteList(cfg.SecretJwt)
 
 	server := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 
