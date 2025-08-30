@@ -48,7 +48,7 @@ func main() {
 
 	userRepo := userRepo.NewRepository(db)
 	postRepo := postRepo.NewPostRepository(db)
-	commentRepo := commentRepo.NewCommentRepository(db)
+	commentRepo := commentRepo.NewRepository(db)
 
 	userService := userService.NewService(cfg, userRepo)
 	postService := postService.NewPostService(cfg, postRepo)

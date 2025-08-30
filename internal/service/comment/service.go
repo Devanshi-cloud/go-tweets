@@ -6,6 +6,8 @@ import (
 	"go-tweets/internal/dto"
 	"go-tweets/internal/repository/comment"
 	"go-tweets/internal/repository/post"
+
+	// "github.com/go-playground/validator/v10"
 )
 
 type CommentService interface {
@@ -16,6 +18,7 @@ type CommentService interface {
 
 type commentService struct {
 	cfg         *config.Config
+	
 	commentRepo comment.CommentRepository
 	postRepo    post.PostRepository
 }
