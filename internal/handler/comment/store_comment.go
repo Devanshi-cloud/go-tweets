@@ -27,7 +27,8 @@ func (h *Handler) CreateComment(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetInt64("userID") // Assuming user ID is set in context after authentication
+	// userID := c.GetInt64("userID") // Assuming user ID is set in context after authentication
+	userID := c.GetInt64("userID")
 	statusCode, err := h.commentService.CreateComment(ctx, &req, userID)
 	if err != nil {
 		c.JSON(statusCode, gin.H{
